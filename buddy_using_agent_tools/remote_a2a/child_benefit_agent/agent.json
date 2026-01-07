@@ -1,0 +1,17 @@
+{
+  "capabilities": {},
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
+  "description": "An agent that is an expert in evaluating applicability for child eligibility benefits.",
+  "name": "child_benefit_agent",
+  "skills": [
+    {
+      "id": "child_benefit_eligibility_determination",
+      "name": "Child Benefit Eligibility Determination",
+      "description": "Walks a client through a process that allows the agent to determine if they are eligible for child benefit",
+      "tags": ["government", "child", "benefit"]
+    }
+  ],
+  "url": "http://localhost:8001/a2a/child_benefit_agent",
+  "version": "1.0.0"
+}
