@@ -11,7 +11,7 @@ child_benefit_agent = RemoteA2aAgent(
 )
 
 root_agent= Agent(
-    model=LiteLlm(model="bedrock/converse/google.gemma-3-4b-it"),
+    model=LiteLlm(model="bedrock/converse/openai.gpt-oss-20b-1:0"),
     # model="openai/gpt-5.1",
     name="buddy",
     description="An agent that helps users",
