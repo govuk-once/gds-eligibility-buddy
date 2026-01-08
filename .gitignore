@@ -4,3 +4,4 @@ pytestdebug.log
 .pytest_cache
 .venv
 .env
+tmp

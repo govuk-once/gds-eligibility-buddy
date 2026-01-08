@@ -2,6 +2,7 @@ from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
 from google.adk.agents.llm_agent import Agent
 from google.adk.agents.remote_a2a_agent import AGENT_CARD_WELL_KNOWN_PATH
 from google.adk.tools.agent_tool import AgentTool
+from google.adk.models.lite_llm import LiteLlm
 
 child_benefit_agent = RemoteA2aAgent(
     name="child_benefit_agent",
@@ -10,7 +11,8 @@ child_benefit_agent = RemoteA2aAgent(
 )
 
 root_agent= Agent(
-    model="openai/gpt-5.1",#LiteLlm(model="ollama_chat/gemma3:12b"),
+    model=LiteLlm(model="bedrock/converse/google.gemma-3-4b-it"),
+    # model="openai/gpt-5.1",
     name="buddy",
     description="An agent that helps users",
     instruction="""

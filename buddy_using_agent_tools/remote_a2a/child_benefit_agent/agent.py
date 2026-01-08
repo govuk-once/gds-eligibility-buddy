@@ -1,8 +1,10 @@
 from google.adk.agents.llm_agent import Agent
+from google.adk.models.lite_llm import LiteLlm
 # from google.adk.a2a.utils.agent_to_a2a import to_a2a
 
 root_agent = Agent(
-    model="openai/gpt-5.1",
+    model=LiteLlm(model="bedrock/converse/google.gemma-3-4b-it"),
+    # model="openai/gpt-5.1",
     name="child_benefit_agent",
     description="An agent that can determine if a user would be eligible for child benefit",
     instruction="""
