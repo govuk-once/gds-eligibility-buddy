@@ -11,4 +11,5 @@ dependencies = [
     "openai>=2.14.0",
     "python-dotenv>=1.2.1",
     "boto3>=1.40.70",
+    "pydantic",
 ]

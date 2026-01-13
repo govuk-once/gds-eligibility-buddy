@@ -1,8 +1,11 @@
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
 from google.adk.agents.llm_agent import Agent
+from google.adk.agents import LlmAgent, SequentialAgent
 from google.adk.agents.remote_a2a_agent import AGENT_CARD_WELL_KNOWN_PATH
 from google.adk.tools.agent_tool import AgentTool
 from google.adk.models.lite_llm import LiteLlm
+from pydantic import BaseModel, Field
+from google.genai import types
 
 child_benefit_agent = RemoteA2aAgent(
     name="child_benefit_agent",
@@ -10,8 +13,50 @@ child_benefit_agent = RemoteA2aAgent(
     agent_card=(f"http://localhost:8001/a2a/child_benefit_agent{AGENT_CARD_WELL_KNOWN_PATH}"),
 )
 
-root_agent= Agent(
-    model=LiteLlm(model="bedrock/converse/openai.gpt-oss-20b-1:0"),
+class ElicitationAction(BaseModel):
+    label: str = Field(description='The text to display on a user modality (i.e. a button)')
+    payload: str = Field(description='The message to send to the agent if the user chooses this option - this can be more detailed than the label')
+
+class ElicitationResponse(BaseModel):
+    content: str = Field(description='The free text to display to the user - this is always required')
+    actions: list[ElicitationAction]| None = None
+
+elicitation_agent = LlmAgent(
+    name="elicitation_agent", 
+    model=LiteLlm(
+        # model="bedrock/openai.gpt-oss-120b-1:0",
+        model="bedrock/google.gemma-3-27b-it",
+        # it is not clear if LiteLLM/Google ADK is picking up the following response format
+        response_format={
+        "type": "json_schema",
+        "json_schema": {
+            "name": "response",
+            "schema": ElicitationResponse.model_json_schema(),
+            "strict": True,
+        },
+    },
+    ),
+    description="An agent to process responses for possible elicitation",
+    generate_content_config=types.GenerateContentConfig(
+        temperature=0.1,
+    ),
+    instruction=f"""
+    You are a user-facing agent who converts a message into a JSON object.
+    You MUST use the provided schema: {ElicitationResponse.model_json_schema()}.
+
+    The content field should contain a comprehensive summary of the message to the user, including any greetings. Ensure you maintain the tone of the original message.
+    The options array should be populated if the message indicates deterministic choices (such as 'Yes' or 'No', or a list of options).
+    Do not provide yes/no options if the question is open-ended.
+    
+    Ensure the options are capitalised correctly - they should not be all lower case or all caps.
+    """,
+    # this is not being enforced?
+    output_schema=ElicitationResponse,
+    # output_key="elicitation"
+)
+
+buddy = Agent(
+    model=LiteLlm(model="bedrock/converse/openai.gpt-oss-120b-1:0"),
     # model="openai/gpt-5.1",
     name="buddy",
     description="An agent that helps users",
@@ -38,8 +83,8 @@ root_agent= Agent(
     - For child benefit applications, use the child_benefit_agent tool
     
     # Outputs
-    - You should pass any unanswerable questions on to the user vebatim
-    - After considering the user's infomation to a question, you should only send "YES" or "NO" 
+    - You should pass any unanswerable questions on to the user verbatim
+    - After considering the user's information to a question, you should only send "YES" or "NO" 
     to benefit agents
 
     # Examples
@@ -53,3 +98,11 @@ root_agent= Agent(
     """,
     tools=[(AgentTool(child_benefit_agent))]
 )
+
+buddy_sequential_agent = SequentialAgent(
+    name="CodePipelineAgent",
+    sub_agents=[buddy, elicitation_agent],
+    description="Executes a sequence of eligibility mediation and elicitation of responses into JSON.",
+)
+
+root_agent = buddy_sequential_agent
