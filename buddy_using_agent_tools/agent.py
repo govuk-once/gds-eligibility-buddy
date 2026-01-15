@@ -1,12 +1,50 @@
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
 from google.adk.agents.llm_agent import Agent
-from google.adk.agents import LlmAgent, SequentialAgent
+from google.adk.agents import SequentialAgent
 from google.adk.agents.remote_a2a_agent import AGENT_CARD_WELL_KNOWN_PATH
 from google.adk.tools.agent_tool import AgentTool
 from google.adk.models.lite_llm import LiteLlm
 from pydantic import BaseModel, Field
 from google.genai import types
-from typing import Literal
+from typing import Literal, Dict, Any
+from google.adk.tools.tool_context import ToolContext
+
+def save_current_questionnaire(question_and_number: str, provided_answer: str, tool_context: ToolContext ) -> Dict[str, Any]:
+    """Save questionnaire.
+    
+    Args:
+       question_and_number: the details of the question asked (e.g. 1. Do you live in the UK?)
+       provided_answer: the answer to the question (e.g. 'Yes, I live in the UK)
+       tool_context: Automatically injected by ADK
+        
+    Returns:
+        dict: Operation status and details
+    """
+
+    tool_context.state[question_and_number] = provided_answer
+
+    print('current state:', tool_context.state._value)
+
+    return {
+        "status": "success",
+        "message": f"Saved {question_and_number}: {provided_answer}",
+    }
+
+def get_answers(tool_context: ToolContext ) -> Dict[str, Any]:
+    """Get current state.
+    
+    Args:
+       tool_context: Automatically injected by ADK
+        
+    Returns:
+        dict: Operation status and details
+    """
+    state_value = tool_context.state._value
+
+    return {
+        "status": "success",
+        "message": f"Retrieved state value: {state_value}",
+    }
 
 universal_credit_agent = RemoteA2aAgent(
     name="universal_credit_agent",
@@ -100,7 +138,7 @@ buddy = Agent(
     1. Identify which benefit service the user is asking about.
     2. Once a service is identified, delegate ALL eligibility logic to the corresponding service agent.
     3. Relay questions from the service agent to the user.
-    4. Relay answers from the user back to the service agent.
+    4. Relay answers from the user back to the service agent via the get_answers tool.
     5. Never advance, infer, or conclude eligibility yourself.
 
     ---
@@ -125,11 +163,10 @@ buddy = Agent(
 
     - You MUST use the `universal_credit_agent` tool to:
     - start the questionnaire
-    - submit answers
     - receive the next question or final decision
 
     - Every turn MUST do ONE of the following:
-    1. Call `universal_credit_agent`, OR
+    1. Call `universal_credit_agent` with the output of the 'get_answers' tool, OR
     2. Relay a question received from `universal_credit_agent`, OR
     3. Relay the final decision - this must contain details of the decision
 
@@ -139,16 +176,17 @@ buddy = Agent(
 
     # Handling User Answers
 
-    When the user provides information:
+    When the user provides information in response to a question:
 
     - You may privately interpret or infer what answer it corresponds to.
-    - You MUST send that answer to the service agent 
-    - You MUST include the current question number (and wording if available) when sending the user's information to the service agent - emphasise this is the current question.
+    - You MUST send that answer to the 'save_current_questionnaire' tool along with the current question and its number
+    - You MUST send the output of the 'get_answers' tool to the service agent
     - You MUST NOT surface inferred answers directly to the user.
 
     Example:
     User says: “I live in Ipswich”
-    → Send to service agent: “Answer to Question 1: YES (user stated they live in Ipswich, UK)”
+    → use 'save_current_questionnaire' tool to update state with user answers
+    → send output of 'get_answers' tool to service agent
 
     ---
 
@@ -181,7 +219,7 @@ buddy = Agent(
 
     ---
 
-    # Reply Type Rules
+    # Reply Type Rules - these ONLY apply to the output schema, not the user's actual reply
 
     - If the service agent expects a Yes/No answer → `reply_type = "yes_no"`
     - If the service agent provides choices → `reply_type = "choice"`
@@ -204,7 +242,7 @@ buddy = Agent(
     You are NOT an eligibility engine.
     You are a strict relay between the user and the benefit service agent.
     """,
-    tools=[(AgentTool(universal_credit_agent))],
+    tools=[(AgentTool(universal_credit_agent)), save_current_questionnaire, get_answers],
     output_schema=BuddyToElicitation
 )
 

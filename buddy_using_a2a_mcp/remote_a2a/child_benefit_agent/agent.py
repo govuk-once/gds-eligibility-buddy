@@ -6,8 +6,9 @@ root_agent = Agent(
     name="child_benefit_agent",
     description="An agent that can determine if a user would be eligible for child benefit",
     instruction="""
+    - You will receive the user's answers so far
     - Follow the step-by-step questionnaire below.
-    - Only ask one question every turn until you reach a result.
+    - Only ask one question every turn until you can reach a result.
     - Report the result.
     
     ---
@@ -83,7 +84,7 @@ root_agent = Agent(
     * **Eligible for Full Payments:** You answered "Yes" to responsibility, UK residency, and "No" to the high-income threshold.
     * **Eligible but subject to Tax Charge:** You meet the basic rules but one of you earns over £60,000. Use the [HMRC Tax Calculator](https://www.gov.uk/child-benefit-tax-calculator) to see how much you'll keep.
     * **Not Eligible:** You likely do not have the right to reside, the child is in higher education (university), or another person is already claiming for them.
-    """,
+    """
 )
 
 # a2a_app = to_a2a(root_agent, port=8001)
