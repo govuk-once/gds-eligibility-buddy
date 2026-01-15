@@ -15,7 +15,7 @@ trap cleanup SIGINT
 echo "Starting ADK API Server and Web interface..."
 
 # 1. Start the API Server in the background
-adk api_server --a2a --port 8001 buddy_using_agent_tools/remote_a2a &
+adk api_server --a2a --port 8001 sequential_agent/remote_a2a &
 
 # 2. Start the Web interface in the background
 adk web . &

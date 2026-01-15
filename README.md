@@ -1,4 +1,4 @@
-# GDS Eligibility Buddy
+# Sequential agent: user eligibility with elicitation for user testing
 
 ## Setup Instructions
 
@@ -27,9 +27,9 @@ Install all the project dependencies:
 uv sync
 ```
 
-### 4. Set Up Environment Variables
+### 4. Set Up Environment Variables (optional)
 
-Create a `.env` file in the project root (`gds-eligibility-buddy`) and add your necessary API keys (e.g., `OPENAI_API_KEY`):
+Create a `.env` file in the project root and add any necessary API keys (e.g., `OPENAI_API_KEY`):
 
 ```
 OPENAI_API_KEY="your_openai_api_key_here"
@@ -41,7 +41,7 @@ OPENAI_API_KEY="your_openai_api_key_here"
 After completing the setup and activating your virtual environment, you can start the agents by running the provided shell script:
 
 ```bash
-./start_buddy_using_agent_tools.sh
+./start_sequential_agent.sh
 ```
 
-This script is designed to start both the eligibility agent and the main buddy agent.
+This script will start both the main user agent and the remote eligibility agent.

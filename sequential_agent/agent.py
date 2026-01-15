@@ -32,9 +32,9 @@ universal_credit_agent = RemoteA2aAgent(
     agent_card=(f"http://localhost:8001/a2a/universal_credit_agent{AGENT_CARD_WELL_KNOWN_PATH}"),
 )
 
-class BuddyToElicitation(BaseModel):
+class UserAgentToElicitation(BaseModel):
     content:str
-    source: Literal["benefit_agent", "buddy"]
+    source: Literal["benefit_agent", "user_agent"]
     expects_reply: bool
     reply_type: Literal["yes_no", "choice", "free_text", "none"]
     choices: list[str] | None = None
@@ -69,7 +69,7 @@ elicitation_agent = Agent(
     instruction=f"""
     You are a formatting agent. 
     You DO NOT infer meaning or intent.
-    Input will always be a JSON object conforming to {BuddyToElicitation.model_json_schema()}
+    Input will always be a JSON object conforming to {UserAgentToElicitation.model_json_schema()}
 
     Your output MUST use the provided schema: {ElicitationResponse.model_json_schema()}.
     Rules:
@@ -86,7 +86,7 @@ elicitation_agent = Agent(
     output_schema=ElicitationResponse,
 )
  
-buddy = Agent(
+user_agent = Agent(
     model=LiteLlm(
         # model="bedrock/converse/",
         model="bedrock/converse/openai.gpt-oss-120b-1:0", 
@@ -94,13 +94,13 @@ buddy = Agent(
             "type": "json_schema",
             "json_schema": {
                 "name": "response",
-                "schema": BuddyToElicitation.model_json_schema(),
+                "schema": UserAgentToElicitation.model_json_schema(),
                 "strict": True,
             },
         }
     ),
     # model="openai/gpt-5.1",
-    name="buddy",
+    name="user_agent",
     description="An agent that helps users",
     instruction=f"""
     # Persona
@@ -121,11 +121,11 @@ buddy = Agent(
 
     ---
 
-    # SERVICE-LOCK RULE (CRITICAL – HARD CONSTRAINT)
+    # SERVICE-LOCK RULE (CRITICAL - HARD CONSTRAINT)
 
     Once a specific benefit service is active (e.g. Universal Credit):
 
-    - You MUST delegate all eligibility logic to that service’s agent.
+    - You MUST delegate all eligibility logic to that service's agent.
     - You MUST NOT decide YES/NO answers, eligibility outcomes, or next questions yourself.
     - You MUST NOT simulate or speak on behalf of the service agent.
     - Even if an answer seems obvious, you MUST send it to the service agent and wait for their response.
@@ -171,7 +171,7 @@ buddy = Agent(
     # Output Rules (HARD CONTRACT)
 
     You MUST output a JSON object that conforms exactly to this schema:
-    {BuddyToElicitation.model_json_schema()}
+    {UserAgentToElicitation.model_json_schema()}
 
     ## QUESTION FORMATTING RULES
 
@@ -189,7 +189,7 @@ buddy = Agent(
     - `content` MUST come verbatim from the service agent
     - You MUST NOT rewrite, summarise, or infer
 
-    - If `source = "buddy"`:
+    - If `source = "user_agent"`:
     - `content` MUST NOT contain eligibility answers or conclusions
 
     - Never include more than ONE question in `content`
@@ -210,7 +210,7 @@ buddy = Agent(
 
     - If the service agent appears stuck or repeats a question:
     - Call the service agent again
-    - Re-submit the user’s answer
+    - Re-submit the user's answer
     - Instruct the agent to advance to the next question
 
     ---
@@ -221,13 +221,13 @@ buddy = Agent(
     You are a strict relay between the user and the benefit service agent.
     """,
     tools=[(AgentTool(universal_credit_agent)), update_questionnaire],
-    output_schema=BuddyToElicitation
+    output_schema=UserAgentToElicitation
 )
 
-buddy_sequential_agent = SequentialAgent(
-    name="CodePipelineAgent",
-    sub_agents=[buddy, elicitation_agent],
+sequential_agent = SequentialAgent(
+    name="eligibility_sequential_agent",
+    sub_agents=[user_agent, elicitation_agent],
     description="Executes a sequence of eligibility mediation and elicitation of responses into JSON.",
 )
 
-root_agent = buddy_sequential_agent
+root_agent = sequential_agent
