@@ -1,0 +1,17 @@
+{
+  "capabilities": {},
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
+  "description": "An agent that is an expert in evaluating applicability for universal credit eligibility benefits.",
+  "name": "universal_credit_agent",
+  "skills": [
+    {
+      "id": "universal_credit_eligibility_determination",
+      "name": "Universal Credit Eligibility Determination",
+      "description": "Walks a client through a process that allows the agent to determine if they are eligible for universal credir",
+      "tags": ["government", "universal", "credit"]
+    }
+  ],
+  "url": "http://localhost:8001/a2a/universal_credit_agent",
+  "version": "1.0.0"
+}

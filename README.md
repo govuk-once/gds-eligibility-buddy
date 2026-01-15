@@ -44,4 +44,4 @@ After completing the setup and activating your virtual environment, you can star
 ./start_buddy_using_agent_tools.sh
 ```
 
-This script is designed to start both the child benefit agent and the main buddy agent.
+This script is designed to start both the eligibility agent and the main buddy agent.
