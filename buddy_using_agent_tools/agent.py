@@ -9,8 +9,8 @@ from google.genai import types
 from typing import Literal, Dict, Any
 from google.adk.tools.tool_context import ToolContext
 
-def save_current_questionnaire(question_and_number: str, provided_answer: str, tool_context: ToolContext ) -> Dict[str, Any]:
-    """Save questionnaire.
+def update_questionnaire(question_and_number: str, provided_answer: str, tool_context: ToolContext ) -> Dict[str, Any]:
+    """Update questionnaire.
     
     Args:
        question_and_number: the details of the question asked (e.g. 1. Do you live in the UK?)
@@ -18,32 +18,12 @@ def save_current_questionnaire(question_and_number: str, provided_answer: str, t
        tool_context: Automatically injected by ADK
         
     Returns:
-        dict: Operation status and details
+        dict: current state
     """
-
     tool_context.state[question_and_number] = provided_answer
 
-    print('current state:', tool_context.state._value)
-
     return {
-        "status": "success",
-        "message": f"Saved {question_and_number}: {provided_answer}",
-    }
-
-def get_answers(tool_context: ToolContext ) -> Dict[str, Any]:
-    """Get current state.
-    
-    Args:
-       tool_context: Automatically injected by ADK
-        
-    Returns:
-        dict: Operation status and details
-    """
-    state_value = tool_context.state._value
-
-    return {
-        "status": "success",
-        "message": f"Retrieved state value: {state_value}",
+        "current_state": tool_context.state._value
     }
 
 universal_credit_agent = RemoteA2aAgent(
@@ -104,7 +84,6 @@ elicitation_agent = Agent(
     """,
     # this is not being enforced?
     output_schema=ElicitationResponse,
-    # output_key="elicitation"
 )
  
 buddy = Agent(
@@ -137,9 +116,8 @@ buddy = Agent(
 
     1. Identify which benefit service the user is asking about.
     2. Once a service is identified, delegate ALL eligibility logic to the corresponding service agent.
-    3. Relay questions from the service agent to the user.
-    4. Relay answers from the user back to the service agent via the get_answers tool.
-    5. Never advance, infer, or conclude eligibility yourself.
+    3. Relay questions and answers between the service agent and the user using the update_questionnaire tool.
+    4. Never advance, infer, or conclude eligibility yourself.
 
     ---
 
@@ -166,7 +144,7 @@ buddy = Agent(
     - receive the next question or final decision
 
     - Every turn MUST do ONE of the following:
-    1. Call `universal_credit_agent` with the output of the 'get_answers' tool, OR
+    1. Call `universal_credit_agent` with the output of the 'update_questionnaire' tool, OR
     2. Relay a question received from `universal_credit_agent`, OR
     3. Relay the final decision - this must contain details of the decision
 
@@ -179,14 +157,14 @@ buddy = Agent(
     When the user provides information in response to a question:
 
     - You may privately interpret or infer what answer it corresponds to.
-    - You MUST send that answer to the 'save_current_questionnaire' tool along with the current question and its number
-    - You MUST send the output of the 'get_answers' tool to the service agent
+    - You MUST send that answer to the 'update_questionnaire' tool along with the current question and its number
+    - You MUST send the output of the 'update_questionnaire' tool to the service agent
     - You MUST NOT surface inferred answers directly to the user.
 
     Example:
+    Question: "Do you live in the UK?"
     User says: “I live in Ipswich”
-    → use 'save_current_questionnaire' tool to update state with user answers
-    → send output of 'get_answers' tool to service agent
+    → use 'update_questionnaire' tool to update state with user answer and send tool response to service agent
 
     ---
 
@@ -242,7 +220,7 @@ buddy = Agent(
     You are NOT an eligibility engine.
     You are a strict relay between the user and the benefit service agent.
     """,
-    tools=[(AgentTool(universal_credit_agent)), save_current_questionnaire, get_answers],
+    tools=[(AgentTool(universal_credit_agent)), update_questionnaire],
     output_schema=BuddyToElicitation
 )
 
