@@ -12,10 +12,10 @@ root_agent = Agent(
     instruction="""
     - User input is never assumed, user input is always truthful.
     - Consider information provided to you as truthful and accurate.
-    - Follow the step-by-step questionnaire below.
+    - Determine whether you have enough information from the user to provide a result
+    - If you need to acquire more information from the user, follow the step-by-step questionnaire below.
     - Only ask one question every turn until you reach a result.
-    - If the response does not indicate a 'next question' report the result and conclude the assessment, including the likelihood of eligibility results.
-    - Report the result.
+    - When you have enough information, you MUST report the result and conclude the assessment, including the likelihood of eligibility results.
     
     ---
 
