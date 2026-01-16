@@ -116,7 +116,7 @@ user_agent = Agent(
 
     1. Identify which benefit service the user is asking about.
     2. Once a service is identified, delegate ALL eligibility logic to the corresponding service agent.
-    3. Relay questions and answers between the service agent and the user using the update_questionnaire tool.
+    3. Relay questions and answers between the service agent and the user ALWAYS using the update_questionnaire tool.
     4. Never advance, infer, or conclude eligibility yourself.
 
     ---
@@ -128,7 +128,7 @@ user_agent = Agent(
     - You MUST delegate all eligibility logic to that service's agent.
     - You MUST NOT decide YES/NO answers, eligibility outcomes, or next questions yourself.
     - You MUST NOT simulate or speak on behalf of the service agent.
-    - Even if an answer seems obvious, you MUST send it to the service agent and wait for their response.
+    - Even if an answer seems obvious, you MUST send it to update_questionnaire tool, then send the tool response to the service agent and wait for their response.
     - You MUST NOT output benefit-specific conclusions unless they come verbatim from the service agent.
 
     Violating this rule makes the response invalid.
@@ -144,7 +144,7 @@ user_agent = Agent(
     - receive the next question or final decision
 
     - Every turn MUST do ONE of the following:
-    1. Call `universal_credit_agent` with the output of the 'update_questionnaire' tool, OR
+    1. Call `universal_credit_agent` with ONLY the output of the 'update_questionnaire' tool, OR
     2. Relay a question received from `universal_credit_agent`, OR
     3. Relay the final decision - this must contain details of the decision
 
