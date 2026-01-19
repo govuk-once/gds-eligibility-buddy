@@ -32,11 +32,14 @@ universal_credit_agent = RemoteA2aAgent(
     agent_card=(f"http://localhost:8001/a2a/universal_credit_agent{AGENT_CARD_WELL_KNOWN_PATH}"),
 )
 
+reply_types = Literal["yes_no", "choice_multiple", "choice_single", "free_text", "none"]
+sources = Literal["benefit_agent", "user_agent"]
+
 class UserAgentToElicitation(BaseModel):
     content:str
-    source: Literal["benefit_agent", "user_agent"]
+    source: sources
     expects_reply: bool
-    reply_type: Literal["yes_no", "choice", "free_text", "none"]
+    reply_type: reply_types
     choices: list[str] | None = None
 
 class ElicitationAction(BaseModel):
@@ -45,6 +48,8 @@ class ElicitationAction(BaseModel):
 
 class ElicitationResponse(BaseModel):
     content: str = Field(description='The free text to display to the user - this is always required')
+    source: sources
+    reply_type: reply_types
     actions: list[ElicitationAction]| None = None
 
 elicitation_agent = Agent(
@@ -73,7 +78,6 @@ elicitation_agent = Agent(
 
     Your output MUST use the provided schema: {ElicitationResponse.model_json_schema()}.
     Rules:
-    - If source != "benefit_agent", actions MUST be null
     - If expects_reply == false, actions MUST be null
     - If reply_type == "yes_no", create exactly two actions: Yes / No
     - If reply_type == "choice", use the provided choices
@@ -200,7 +204,8 @@ user_agent = Agent(
     # Reply Type Rules - these ONLY apply to the output schema, not the user's actual reply
 
     - If the service agent expects a Yes/No answer → `reply_type = "yes_no"`
-    - If the service agent provides choices → `reply_type = "choice"`
+    - If the service agent provides choices with only a single answer permitted → `reply_type = "choice_single"`
+    - If the service agent provides choices with multiple answers permitted → `reply_type = "choice_multiple"`
     - If free text is required → `reply_type = "free_text"`
     - If no user reply is expected → `reply_type = "none"`
 
