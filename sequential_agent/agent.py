@@ -8,17 +8,7 @@ from pydantic import BaseModel, Field
 from google.genai import types
 from typing import Literal, Dict, Any
 from google.adk.tools.tool_context import ToolContext
-from pathlib import Path
-import os
-
-prompts_dir = os.environ.get("PROMPTS_DIR", "./sequential_agent/prompts")
-
-def get_prompt(rel_path: str) -> str:
-    prompt_path = Path(prompts_dir).joinpath(rel_path)
-    print(os.getcwd())
-    with prompt_path.open() as f:
-        prompt_lines = f.readlines()
-    return "\n".join(prompt_lines)
+from sequential_agent.prompts import user_agent_prompt, elicitation_agent_prompt
 
 def get_state(tool_context: ToolContext ) -> Dict[str, Any]:
     """Gets state.
@@ -109,28 +99,12 @@ elicitation_agent = Agent(
     generate_content_config=types.GenerateContentConfig(
         temperature=0.1,
     ),
-    instruction=f"""
-    You are a formatting agent. 
-    You DO NOT infer meaning or intent.
-    Input will always be a JSON object conforming to {UserAgentToElicitation.model_json_schema()}
-
-    Your output MUST use the provided schema: {ElicitationResponse.model_json_schema()}.
-    Rules:
-    - If expects_reply == false, actions MUST be null
-    - If reply_type == "yes_no", create exactly two actions: Yes / No
-    - If reply_type == "choice", use the provided choices
-    - If reply_type == "free_text", actions MUST be null
-    - content is always passed through verbatim
-    
-    Ensure the options are capitalised correctly - they should not be all lower case or all caps.
-    """,
-    # this is not being enforced?
-    output_schema=ElicitationResponse,
+    instruction=elicitation_agent_prompt(),
+    output_schema=ElicitationResponse,# this is not being enforced?
 )
  
 user_agent = Agent(
     model=LiteLlm(
-        # model="bedrock/converse/",
         model="bedrock/openai.gpt-oss-120b-1:0", 
         response_format={
             "type": "json_schema",
@@ -141,10 +115,9 @@ user_agent = Agent(
             },
         }
     ),
-    # model="openai/gpt-5.1",
     name="user_agent",
     description="An agent that helps users",
-    instruction=get_prompt("./user_agent.md").format(output_schema=UserAgentToElicitation.model_json_schema()),
+    instruction=user_agent_prompt(UserAgentToElicitation.model_json_schema())
     tools=[
         (AgentTool(universal_credit_agent)), 
         (AgentTool(personal_independence_payments_agent)),
