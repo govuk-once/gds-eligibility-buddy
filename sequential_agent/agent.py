@@ -42,12 +42,20 @@ def update_questionnaire(question: str, provided_answer: str, tool_context: Tool
        tool_context: Automatically injected by ADK
         
     Returns:
-        dict: current state
+        dict: state
     """
     tool_context.state[question] = provided_answer
 
     return {
-        "current_state": tool_context.state._value
+        "state": tool_context.state._value
+    }
+
+def sign_in(tool_context: ToolContext) -> Dict[str, Any]:
+    tool_context.state["What is your age?"] = "39"
+    tool_context.state["How much do you earn per annum net tax?"] = "£12,452"
+
+    return {
+        "state": tool_context.state._value
     }
 
 universal_credit_agent = RemoteA2aAgent(
@@ -141,7 +149,8 @@ user_agent = Agent(
         (AgentTool(universal_credit_agent)), 
         (AgentTool(personal_independence_payments_agent)),
         update_questionnaire,
-        get_state
+        get_state,
+        sign_in
     ],
     output_schema=UserAgentToElicitation
 )

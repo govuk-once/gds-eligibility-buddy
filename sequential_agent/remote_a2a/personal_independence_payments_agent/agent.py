@@ -27,7 +27,7 @@ root_agent = Agent(
         * **Yes**: go to question 4**
         * **No**: FINAL DECISION: Not eligible
     4. **Duration:** Have you had a health condition for at least 3 months, and do you expect it to continue for at least another 9 months. Alternatively, are you not expected to live more than 12 months?
-        * **Yes**: Go to phase 2.
+        * **Yes**: Go to question 5.
         * **No**: FINAL DECISION: Not eligible
     5. *Do you need help, or struggle, with any of the following for over half of any given day? (Tick all that apply). Please be aware that only being able to do a task by using an aid (like a grab rail, 
     a walking stick, or a dossette box for pills) counts as needing help. If the user answers "yes" to any, go to question 6.*
