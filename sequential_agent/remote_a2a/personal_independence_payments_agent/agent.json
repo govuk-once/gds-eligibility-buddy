@@ -1,0 +1,17 @@
+{
+  "capabilities": {},
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
+  "description": "An agent that is an expert in evaluating the likelihood of success when applying for personal independence payments.",
+  "name": "personal_independence_payments_agent",
+  "skills": [
+    {
+      "id": "personal_independence_payments_likelihood_determination",
+      "name": "Personal Independence Payments Likelihood Determination",
+      "description": "Walks a client through a process that allows the agent to determine how likely it is that the user would succeed if they were to apply for personal independence payments",
+      "tags": ["government", "personal", "independence", "payments"]
+    }
+  ],
+  "url": "http://localhost:8001/a2a/personal_independence_payments_agent",
+  "version": "1.0.0"
+}
