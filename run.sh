@@ -47,26 +47,6 @@ fi
 # Assign the first argument to a variable
 ENVIRONMENT=$1
 
-# Check if pip is installed
-if ! command -v pip &> /dev/null; then
-    echo "❌ Error: pip is not installed. Please install pip first."
-    exit 1
-fi
-
-# Install uv using pip (using --user to avoid permission issues)
-echo "Installing uv via pip..."
-if pip install --user uv; then
-    echo "✅ uv installed successfully!"
-    
-    # Check if the user bin directory is in PATH (common issue with --user installs)
-    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-        echo "⚠️  Note: You may need to add '$HOME/.local/bin' to your PATH to run uv."
-    fi
-else
-    echo "❌ Failed to install uv."
-    exit 1
-fi
-
 # Check if the .venv directory/file exists and if a venv is NOT already active.
 if [ -d ".venv" ] || [ -f ".venv" ]; then
     if [ -z "$VIRTUAL_ENV" ]; then
@@ -77,6 +57,25 @@ if [ -d ".venv" ] || [ -f ".venv" ]; then
     fi
 else
     echo "No .venv found in current directory."
+fi
+
+# Check if uv is already installed and install if not
+if command -v uv &> /dev/null; then
+    echo "✅ uv is already installed at $(which uv)."
+else
+    # Install uv using pip (using --user to avoid permission issues)
+    echo "Installing uv via pip..."
+    if pip install --user uv; then
+        echo "✅ uv installed successfully!"
+        
+        # Check if the user bin directory is in PATH (common issue with --user installs)
+        if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            echo "⚠️  Note: You may need to add '$HOME/.local/bin' to your PATH to run uv."
+        fi
+    else
+        echo "❌ Failed to install uv."
+        exit 1
+    fi
 fi
 
 uv sync
