@@ -117,7 +117,7 @@ user_agent = Agent(
     ),
     name="user_agent",
     description="An agent that helps users",
-    instruction=user_agent_prompt(UserAgentToElicitation.model_json_schema())
+    instruction=user_agent_prompt(UserAgentToElicitation.model_json_schema()),
     tools=[
         (AgentTool(universal_credit_agent)), 
         (AgentTool(personal_independence_payments_agent)),
