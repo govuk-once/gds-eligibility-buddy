@@ -10,8 +10,11 @@ def universal_credit_agent_prompt() -> str:
 def personal_independence_payment_agent_prompt() -> str:
     return _retrieve("personal_independence_payment_agent")
 
-def elicitation_agent_prompt() -> str:
-    return _retrieve("elicitation_agent")
+def elicitation_agent_prompt(user_agent_to_elicitation_agent_schema: dict[str, Any], elicitation_agent_response_schema: dict[str, Any]) -> str:
+    return _retrieve("elicitation_agent").format(
+        user_agent_to_elicitation_agent_schema=user_agent_to_elicitation_agent_schema, 
+        elicitation_agent_response_schema=elicitation_agent_response_schema
+    )
 
 def _retrieve(agent_prompt: str) -> str:
     file_path = Path.cwd() / f"sequential_agent/prompts/{agent_prompt}.md" 
