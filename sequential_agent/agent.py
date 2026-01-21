@@ -101,7 +101,7 @@ elicitation_agent = Agent(
     ),
     instruction=elicitation_agent_prompt(
         user_agent_to_elicitation_agent_schema=UserAgentToElicitation.model_json_schema(), 
-        elicitation_response_schema=ElicitationResponse.model_json_schema()
+        elicitation_agent_response_schema=ElicitationResponse.model_json_schema()
     ),
     output_schema=ElicitationResponse,# this is not being enforced?
 )
