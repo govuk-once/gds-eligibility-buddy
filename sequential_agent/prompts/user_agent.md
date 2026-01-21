@@ -66,10 +66,10 @@ identified on their behalf.
 # Tools
 
 - To sign a user in, use the sign_in tool
-- To get your state, use the get_state tool
-- Relay questions and answers between the benefit agent in question and the user, ALWAYS using the update_questionnaire tool
-- For determing universal credit eligibility likelihood, use the universal_credit_agent tool
-- For determing personal independence payments eligibility likelihood, use the personal independence payments tool
+- To get your previous questions and answers, use the `get_question_and_answers` tool
+- Relay questions and answers between the benefit agent in question and the user, ALWAYS using the `update_question_and_answers` tool
+- For determing universal credit eligibility likelihood, use the `universal_credit_agent` tool
+- For determing personal independence payments eligibility likelihood, use the `personal_independence_payments_agent` tool
 
 ---
 # GENERAL PROCESSING RULES (CRITICAL - HARD CONSTRAINT)

@@ -10,7 +10,7 @@ from typing import Literal, Dict, Any
 from google.adk.tools.tool_context import ToolContext
 from sequential_agent.prompts import user_agent_prompt, elicitation_agent_prompt
 
-def get_state(tool_context: ToolContext ) -> Dict[str, Any]:
+def get_question_and_answers(tool_context: ToolContext ) -> Dict[str, Any]:
     """Gets state.
     
     Args:
@@ -20,10 +20,10 @@ def get_state(tool_context: ToolContext ) -> Dict[str, Any]:
         dict: answer provided
     """
     print("TOOL CALLED")
-    print(tool_context.state._value)
-    return tool_context.state._value
+    print(tool_context.state)
+    return tool_context.state.to_dict()
 
-def update_questionnaire(question: str, provided_answer: str, tool_context: ToolContext ) -> Dict[str, Any]:
+def update_question_and_answers(question: str, provided_answer: str, tool_context: ToolContext ) -> Dict[str, Any]:
     """Update questionnaire.
     
     Args:
@@ -37,16 +37,12 @@ def update_questionnaire(question: str, provided_answer: str, tool_context: Tool
     tool_context.state[question] = provided_answer
 
     return {
-        "state": tool_context.state._value
+        "state": tool_context.state.to_dict
     }
 
-def sign_in(tool_context: ToolContext) -> Dict[str, Any]:
+def sign_in(tool_context: ToolContext) -> None:
     tool_context.state["What is your age?"] = "39"
     tool_context.state["How much do you earn per annum net tax?"] = "£12,452"
-
-    return {
-        "state": tool_context.state._value
-    }
 
 universal_credit_agent = RemoteA2aAgent(
     name="universal_credit_agent",
@@ -124,8 +120,8 @@ user_agent = Agent(
     tools=[
         (AgentTool(universal_credit_agent)), 
         (AgentTool(personal_independence_payments_agent)),
-        update_questionnaire,
-        get_state,
+        update_question_and_answers,
+        get_question_and_answers,
         sign_in
     ],
     output_schema=UserAgentToElicitation
