@@ -1,27 +1,17 @@
+from typing import Literal, Dict, Any
+
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
 from google.adk.agents.llm_agent import Agent
 from google.adk.agents import SequentialAgent
 from google.adk.agents.remote_a2a_agent import AGENT_CARD_WELL_KNOWN_PATH
 from google.adk.tools.agent_tool import AgentTool
 from google.adk.models.lite_llm import LiteLlm
-from pydantic import BaseModel, Field
 from google.genai import types
-from typing import Literal, Dict, Any
 from google.adk.tools.tool_context import ToolContext
+from pydantic import BaseModel, Field
+
 from sequential_agent.prompts import user_agent_prompt, elicitation_agent_prompt
 
-def get_question_and_answers(tool_context: ToolContext ) -> Dict[str, Any]:
-    """Gets state.
-    
-    Args:
-       tool_context: Automatically injected by ADK
-        
-    Returns:
-        dict: answer provided
-    """
-    print("TOOL CALLED")
-    print(tool_context.state)
-    return tool_context.state.to_dict()
 
 def update_question_and_answers(question: str, provided_answer: str, tool_context: ToolContext ) -> Dict[str, Any]:
     """Update questionnaire.
@@ -34,15 +24,27 @@ def update_question_and_answers(question: str, provided_answer: str, tool_contex
     Returns:
         dict: state
     """
-    tool_context.state[question] = provided_answer
-
+    questions_and_responses = tool_context.state.setdefault("questions_and_responses", {})
+    print(questions_and_responses)
+    questions_and_responses[question] = provided_answer
+    print(questions_and_responses)
+    tool_context.state["questions_and_responses"] = questions_and_responses
+    
     return {
-        "state": tool_context.state.to_dict
+        "state": tool_context.state.to_dict()
     }
 
+
 def sign_in(tool_context: ToolContext) -> None:
-    tool_context.state["What is your age?"] = "39"
-    tool_context.state["How much do you earn per annum net tax?"] = "£12,452"
+    questions_and_responses = tool_context.state.setdefault("questions_and_responses", {})
+    questions_and_responses["What is your age?"] = "39"
+    questions_and_responses["How much do you earn per annum net tax?"] = "£12,452"
+    tool_context.state["questions_and_responses"] = questions_and_responses
+
+    return {
+        "state": tool_context.state.to_dict()
+    }
+
 
 universal_credit_agent = RemoteA2aAgent(
     name="universal_credit_agent",
@@ -83,13 +85,13 @@ elicitation_agent = Agent(
         # model="bedrock/anthropic.claude-sonnet-4-5-20250929-v1:0",
         # it is not clear if LiteLLM/Google ADK is picking up the following response format
         response_format={
-        "type": "json_schema",
-        "json_schema": {
-            "name": "response",
-            "schema": ElicitationResponse.model_json_schema(),
-            "strict": True,
+            "type": "json_schema",
+            "json_schema": {
+                "name": "response",
+                "schema": ElicitationResponse.model_json_schema(),
+                "strict": True,
+            },
         },
-    },
     ),
     description="An agent to process responses for possible elicitation",
     generate_content_config=types.GenerateContentConfig(
@@ -121,7 +123,6 @@ user_agent = Agent(
         (AgentTool(universal_credit_agent)), 
         (AgentTool(personal_independence_payments_agent)),
         update_question_and_answers,
-        get_question_and_answers,
         sign_in
     ],
     output_schema=UserAgentToElicitation
