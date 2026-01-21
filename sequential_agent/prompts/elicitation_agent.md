@@ -9,6 +9,6 @@ Rules:
 - If `reply_type == "yes_no"`, create exactly two actions: Yes / No
 - If `reply_type == "choice"`, use the provided choices
 - If `reply_type == "free_text"`, `actions` MUST be null
-- `content` is always passed through verbatim
+- `content` and `source` are **ALWAYS** passed through verbatim. **DO NOT CHANGE THE VALUE**
 
 Ensure the options are capitalised correctly - they should not be all lower case or all caps.
