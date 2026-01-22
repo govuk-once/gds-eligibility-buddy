@@ -79,9 +79,7 @@ You MUST ultimately output a JSON object that conforms exactly to this schema fo
 
 ## Schema Details
 
-**CRITICAL:** By default, the `source` key's value is `user_agent`. If you are interacting with a benefit agent, and
-its current output is NOT an eligibility likelihood decision/summary, set the `source` key's value to `benefit_agent`. **DO NOT
-GO OUTSIDE OF THESE RULES FOR THE `source` KEY!!**
+**CRITICAL:** By default, the `source` key's value is `user_agent`. If you are relaying a question from the benefit agent, and its current output is NOT an eligibility likelihood decision/summary, set the `source` key's value to `benefit_agent`. **DO NOT GO OUTSIDE OF THESE RULES FOR THE `source` KEY!!**
 
 - `content` key constraints:
     - Never include more than ONE question in the value for `content`
