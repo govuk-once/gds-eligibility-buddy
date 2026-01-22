@@ -1,4 +1,4 @@
-from typing import Literal, Dict, Any
+from typing import Literal, Dict, Any, Optional, List
 
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
 from google.adk.agents.llm_agent import Agent
@@ -78,22 +78,45 @@ class ElicitationResponse(BaseModel):
     reply_type: reply_types
     actions: list[ElicitationAction]| None = None
 
+def emit_elicitation_response(
+    content: str,
+    source: str,
+    reply_type: str,
+    actions: Optional[List[dict]] = None,
+) -> dict:
+    """
+    Emits a final ElicitationResponse.
+    This tool is terminal: no conversational output should follow.
+    
+    `actions` must either be `null` or a list of objects:
+    [{"label": "string", "payload": "string"}]
+    """
+    if actions is not None:
+        validated_actions = []
+        for action in actions:
+            if "label" in action and "payload" in action:
+                validated_actions.append({
+                    "label": str(action["label"]),
+                    "payload": str(action["payload"])
+                })
+        actions = validated_actions if validated_actions else None
+
+    return {
+        "content": content,
+        "source": source,
+        "reply_type": reply_type,
+        "actions": actions,
+    }
+
 elicitation_agent = Agent(
     name="elicitation_agent", 
+    
     model=LiteLlm(
         model="bedrock/openai.gpt-oss-120b-1:0",
         # model="bedrock/anthropic.claude-sonnet-4-5-20250929-v1:0",
-        # it is not clear if LiteLLM/Google ADK is picking up the following response format
-        response_format={
-            "type": "json_schema",
-            "json_schema": {
-                "name": "response",
-                "schema": ElicitationResponse.model_json_schema(),
-                "strict": True,
-            },
-        },
     ),
     description="An agent to process responses for possible elicitation",
+    tools=[emit_elicitation_response],
     generate_content_config=types.GenerateContentConfig(
         temperature=0.1,
     ),
@@ -101,7 +124,6 @@ elicitation_agent = Agent(
         user_agent_to_elicitation_agent_schema=UserAgentToElicitation.model_json_schema(), 
         elicitation_agent_response_schema=ElicitationResponse.model_json_schema()
     ),
-    output_schema=ElicitationResponse,# this is not being enforced?
 )
  
 user_agent = Agent(

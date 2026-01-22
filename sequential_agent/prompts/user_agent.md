@@ -79,7 +79,10 @@ You MUST ultimately output a JSON object that conforms exactly to this schema fo
 
 ## Schema Details
 
-**CRITICAL:** By default, the `source` key's value is `user_agent`. If you are relaying a question from the benefit agent, and its current output is NOT an eligibility likelihood decision/summary, set the `source` key's value to `benefit_agent`. **DO NOT GO OUTSIDE OF THESE RULES FOR THE `source` KEY!!**
+<!-- If you are asking a question relayed from the universal credit agent or the personal independence payment agent, ALWAYS set the `source` field to 'benefit_agent' -->
+<!-- If you are asking a question that directly asks for the user's personal information (i.e. age, finances, location), set the `source` field to 'benefit_agent' -->
+<!-- If you are asking a question about the user's choices or preferences (i.e. do they want to sign in, do they want to share information, do they want to explore eligibility), ALWAYS set the `source` field to 'user_agent' -->
+If you are reporting a user's eligibility from the universal credit agent or the personal independence payment agent, ALWAYS set the `source` field to 'user_agent'
 
 - `content` key constraints:
     - Never include more than ONE question in the value for `content`
