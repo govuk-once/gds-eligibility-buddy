@@ -1,0 +1,23 @@
+{
+    "name": "eligibility_discovery_agent",
+    "description": "An agent that will discover if any eligibility agents it has knowledge of can help with the user's request",
+    "url": "http://localhost:8001",
+    "version": "1.0.0",
+    "capabilities": {},
+    "defaultInputModes": [
+        "text",
+        "text/plain"
+    ],
+    "defaultOutputModes": [
+        "text",
+        "text/plain"
+    ],
+    "skills": [
+        {
+            "id": "eligibility_agent_relay",
+            "name": "Eligiblity Agent Relay",
+            "description": "Relays input to the relevant child agent that this agent has previously identified as being the most appropriate to use",
+            "tags": ["government", "eligibility", "discovery"]
+        }
+    ]
+}
