@@ -10,6 +10,17 @@ architecture:
 
 ## How do I run you?
 
+### ADK Setup
+
+All agents in this repository were built with Google's 
+[Agent Development Kit](https://google.github.io/adk-docs/). This means that you'll need
+to install ADK on your machine to run me. Click 
+[here](https://google.github.io/adk-docs/get-started/) to get started!
+
+**PLEASE NOTE**: you do not have to get and set a `GOOGLE_API_KEY` environment variable!
+Agents in this repository use Claude via Amazon Bedrock, rather than Google language 
+models, and all infrastructure is set-up using locally available technology.
+
 ### AWS Profile Setup
 
 You'll need to have set-up an AWS profile on your machine that can be used by 
