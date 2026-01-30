@@ -21,6 +21,12 @@ start_agents() {
     # 2. Start the pip agent API Server in the background
     uvicorn root.eligibility.pip.agent:a2a_app --host localhost --port 8002 &
 
+    # 3. Start the taxation agent API Server in the background
+    uvicorn root.taxation.agent:a2a_app --host localhost --port 8003 &
+
+    # 4. Start the tax code agent API Server in the background
+    uvicorn root.taxation.tax_code.agent:a2a_app --host localhost --port 8004 &
+
     # 3. Start the Web interface in the background
     adk web . &
 

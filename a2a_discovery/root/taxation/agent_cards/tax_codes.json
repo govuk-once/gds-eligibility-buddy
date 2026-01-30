@@ -1,0 +1,21 @@
+{
+    "name": "tax_codes_agent",
+    "description": "An agent that handles UK government tax code matters",
+    "url": "http://localhost:8004",
+    "version": "1.0.0",
+    "capabilities": {},
+    "defaultInputModes": [
+        "application/json"
+    ],
+    "defaultOutputModes": [
+        "application/json"
+    ],
+    "skills": [
+        {
+            "id": "tax_code_resolution",
+            "name": "Tax code resolver",
+            "description": "Resolves a tax code for a user.",
+            "tags": ["government", "taxation", "discovery"]
+        }
+    ]
+}
