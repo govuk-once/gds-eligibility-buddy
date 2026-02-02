@@ -13,21 +13,16 @@ start_agents() {
     # Trap the SIGINT signal (Ctrl+C) and call the cleanup function
     trap cleanup SIGINT
 
-    echo "Starting ADK API Server and Web interface..."
+    echo "Starting ADK API Servers and Web interface..."
 
-    # 1. Start the eligibility agent API Server in the background
+    # Start agent API Servers in the background
     uvicorn root.eligibility.agent:a2a_app --host localhost --port 8001 &
-
-    # 2. Start the pip agent API Server in the background
     uvicorn root.eligibility.pip.agent:a2a_app --host localhost --port 8002 &
-
-    # 3. Start the taxation agent API Server in the background
     uvicorn root.taxation.agent:a2a_app --host localhost --port 8003 &
-
-    # 4. Start the tax code agent API Server in the background
     uvicorn root.taxation.tax_code.agent:a2a_app --host localhost --port 8004 &
+    uvicorn root.fishing_licence.agent:a2a_app --host localhost --port 8005 &
 
-    # 3. Start the Web interface in the background
+    # Start the Web interface in the background
     adk web . &
 
     # Wait for background processes to finish (keeps the script alive)

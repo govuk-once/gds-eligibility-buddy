@@ -58,6 +58,10 @@ root_agent = LlmAgent(
     2. Relay the answer from the agent(s) you contact to the original caller. 
         - If the answer was a question and contained a question number, save both these pieces of information using your
         `update_most_recent_question` tool
+    3. Once you have concluded a conversation with one of your known agents, tell the user that you will ask if your other known 
+    agents can offer any further information/help given the outcome of the conversation, then do this for each of your other known
+    agents. Aggregate the results from each agent and present the information to the user all at once. If there are contradicitons in 
+    the aggregate, point these out to the user.
 
     # Tools
 
