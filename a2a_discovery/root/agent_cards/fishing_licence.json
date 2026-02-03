@@ -1,0 +1,29 @@
+{
+    "name": "fishing_licence_agent",
+    "description": "An agent that is an expert in calculating fishing licence eligibility and cost.",
+    "url": "http://localhost:8005",
+    "version": "1.0.0",
+    "capabilities": {},
+    "defaultInputModes": [
+        "application/json",
+        "text",
+        "text/plain"
+    ],
+    "defaultOutputModes": [
+        "application/json",
+        "text",
+        "text/plain"
+    ],
+    "skills": [
+        {
+            "id": "fishing_licence_price_determination",
+            "name": "Fishing licence price determination",
+            "description": "Calculates the cost of a fishing licence",
+            "tags": ["government", "fishing", "licence"],
+            "examples": [
+                "To start, send JSON {\"question_number\": 0, \"answer\":\"\"}",
+                "To answer a question like '1. Question 1', send JSON {\"question_number\": 1, \"answer\":\"Answer provided by user\"}"
+            ]
+        }
+    ]
+}

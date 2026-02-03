@@ -1,0 +1,29 @@
+{
+    "name": "taxation_agent",
+    "description": "An agent that handles UK government taxation matters",
+    "url": "http://localhost:8003",
+    "version": "1.0.0",
+    "capabilities": {},
+    "defaultInputModes": [
+        "text",
+        "text/plain"
+    ],
+    "defaultOutputModes": [
+        "text",
+        "text/plain"
+    ],
+    "skills": [
+        {
+            "id": "taxation_agent_discovery",
+            "name": "Taxation Agent Discovery",
+            "description": "Discovers specific taxation agents that are best suited to service the client's request",
+            "tags": ["government", "taxation", "discovery"]
+        },
+        {
+            "id": "taxation_conversation_relay",
+            "name": "Taxation Agent Relay",
+            "description": "Relays input to the relevant specialist tax agent that this agent has previously identified as being the most appropriate to service a conversation",
+            "tags": ["government", "taxation", "relay"]
+        }
+    ]
+}
